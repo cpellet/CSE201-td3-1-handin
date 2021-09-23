@@ -97,34 +97,37 @@ bool simulate_projectile(const double magnitude, const double angle,
   return hit_target;
 }
 
+void swap(double *xp, double *yp)
+{
+    double temp = *xp;
+    *xp = *yp;
+    *yp = temp;
+}
+
+void bubbleSort(double arr[], int n)
+{
+    int i, j;
+    for (i = 0; i < n; i += 3){
+        for (j = i+3; j < n; j += 3){
+            if (arr[j] < arr[i]){
+                swap(arr[j], arr[i]);
+                swap(arr[j+1], arr[i+1]);
+                swap(arr[j+2], arr[i+2]);
+            }
+        }
+    }
+}
+
 void merge_telemetry(double **telemetries,
                      int tot_telemetries,
                      int *telemetries_sizes,
                      double* &global_telemetry,
                      int &global_telemetry_current_size,
                      int &global_telemetry_max_size) {
-  int allElemsCount = 0;
   for(int i=0;i<tot_telemetries;i++){
       for(int n=0;n<telemetries_sizes[i];n++){
-          allElemsCount += 1;
+          global_telemetry = append_to_array(telemetries[i][n],global_telemetry,global_telemetry_current_size,global_telemetry_max_size);
       }
   }
-  int* lowestTimeIndex = new int[3];
-  lowestTimeIndex[0] = 0;
-  while(allElemsCount > 0){
-      for(int i=0;i<tot_telemetries;i++){
-          for(int timeIndex=0;timeIndex<telemetries_sizes[i];timeIndex+=4){
-              int time = telemetries[i][timeIndex];
-              if(time <= lowestTimeIndex[0]){
-                  lowestTimeIndex[0] = time;
-                  lowestTimeIndex[1] = telemetries[i][timeIndex+1];
-                  lowestTimeIndex[2] = telemetries[i][timeIndex+2];
-              }
-          }
-      }
-      global_telemetry = append_to_array(lowestTimeIndex[0],global_telemetry,global_telemetry_current_size,global_telemetry_max_size);
-      global_telemetry = append_to_array(lowestTimeIndex[1],global_telemetry,global_telemetry_current_size,global_telemetry_max_size);
-      global_telemetry = append_to_array(lowestTimeIndex[2],global_telemetry,global_telemetry_current_size,global_telemetry_max_size);
-      allElemsCount --;
-  }
+  bubbleSort(global_telemetry,global_telemetry_current_size);
 }
